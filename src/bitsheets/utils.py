@@ -5,7 +5,8 @@ import sys
 class SimpleFilter(logging.Filter):
     def __init__(self, loglevel: int, leq: bool):
         """
-        Initialize filter
+        Initialize filter.
+
         :param loglevel: Decision threshold
         :param leq: Whether to let less or equal levels or higher levels pass
         """
@@ -14,7 +15,8 @@ class SimpleFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
         """
-        Filter log records
+        Filter log records.
+
         :param record: Log record
         :return: Whether to let the record pass
         """
@@ -26,10 +28,10 @@ class SimpleFilter(logging.Filter):
 
 def set_up_logging(loglevel: int, filename: str = None) -> None:
     """
-    Set up basic logging
+    Set up basic logging.
+
     :param loglevel: Log level
     :param filename: Filename to write log records to
-    :return: None
     """
     handlers = []
     if loglevel <= logging.INFO:

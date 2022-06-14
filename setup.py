@@ -8,6 +8,5 @@ setup(
     url="https://github.com/swbg/bitsheets",
     author="Stefan Weissenberger",
     description="Music parser for GB roms.",
-    include_package_data=True,
     zip_safe=False,
 )

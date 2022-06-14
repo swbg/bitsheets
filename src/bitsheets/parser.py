@@ -7,9 +7,20 @@ _logger = logging.getLogger(__name__)
 
 class PokemonRBYParser:
     def __init__(self, rom: bytes):
+        """
+        Class for parsing Pokemon RBY roms.
+
+        :param rom: Rom
+        """
         self.rom = rom
 
     def parse_from_pointer(self, ptr: int, ptr_offset: int):
+        """
+        Start parsing music from indicated pointer.
+
+        :param ptr: Start pointer
+        :param ptr_offset: Bank-specific pointer offset
+        """
         score = []
 
         c_ptr = ptr_offset + ptr
