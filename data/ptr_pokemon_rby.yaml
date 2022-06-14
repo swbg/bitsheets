@@ -1,0 +1,335 @@
+# Originally taken from datacrystal.romhacking.net, with some corrections
+# https://datacrystal.romhacking.net/wiki/Pok%C3%A9mon_Red_and_Blue:ROM_map#Route_1
+# Bank 2
+healing:
+  title: Healing Pokémon
+  channels:
+    # 0x5BA3 # not sure what's up with this one
+    - 0x5bc4
+    - 0x5bd2
+  ptr_offset: 0x4000
+route_01:
+  title: Route 1 Theme
+  channels:
+    - 0x5bde
+    - 0x5c51
+    - 0x5cd8
+    # 0x5D24,  # percussion
+  ptr_offset: 0x4000
+route_03:
+  title: Route 3 Theme
+  channels:
+    - 0x5fad
+    - 0x6009
+    - 0x607f
+    # 0x6131, # percussion
+  ptr_offset: 0x4000
+route_12:
+  title: Route 12 Theme
+  channels:
+    - 0x626a
+    - 0x6304
+    - 0x63c4
+    # 0x649D, # percussion
+  ptr_offset: 0x4000
+route_25:
+  title: Route 25 Theme
+  channels:
+    - 0x5db9
+    - 0x5e4f
+    - 0x5e9b
+    # 0x9F08, # percussion
+  ptr_offset: 0x4000
+indigo_plateau:
+  title: Indigo Plateau
+  channels:
+    - 0x65f0
+    - 0x6664
+    - 0x66ba
+    # 0x670F, # percussion
+  ptr_offset: 0x4000
+pallet_town:
+  title: Pallet Town
+  channels:
+    - 0x67c5
+    - 0x685f
+    - 0x68de
+  ptr_offset: 0x4000
+viridian_city:
+  title: Viridian City
+  channels:
+    - 0x6a76
+    - 0x6b92
+    - 0x6c32
+    # 0x6C80, # percussion
+  ptr_offset: 0x4000
+following_person:
+  title: Following Person
+  channels:
+    - 0x6dae # one extra note at end
+    - 0x6df1
+    - 0x6e6e
+    # 0x6ED1, # percussion
+  ptr_offset: 0x4000
+prof_oak:
+  title: Prof. Oak Encounter
+  channels:
+    - 0x6f59
+    - 0x6fa9
+    - 0x703d
+  ptr_offset: 0x4000
+meet_rival_trainer:
+  title: Rival Trainer Encounter
+  channels:
+    - 0x7120
+    - 0x71bb
+    - 0x7233
+  ptr_offset: 0x4000
+ss_anne:
+  title: S.S. Anne
+  channels:
+    - 0x73a7
+    - 0x7419
+    - 0x74cb
+  ptr_offset: 0x4000
+cerulean_city:
+  title: Cerulean City
+  channels:
+    - 0x7504
+    - 0x7569
+    - 0x7640
+  ptr_offset: 0x4000
+celadon_city:
+  title: Celadon City
+  channels:
+    - 0x76c7
+    - 0x773a
+    - 0x77b5
+  ptr_offset: 0x4000
+cinnabar_island:
+  title: Cinnabar Island
+  channels:
+    - 0x786d
+    - 0x78d4
+    - 0x793d
+  ptr_offset: 0x4000
+vermilion_city:
+  title: Vermilion City
+  channels:
+    - 0x79eb
+    - 0x7a61
+    - 0x7aa6
+    # 0x7b0d # percussion
+  ptr_offset: 0x4000
+lavender_town:
+  title: Lavender Town
+  channels:
+    - 0x7b58
+    - 0x7b9e
+    - 0x7bae
+    # 0x7C21, # percussion
+  ptr_offset: 0x4000
+safari_zone:
+  title: Safari Zone
+  channels:
+    - 0x7c2e # a little shorter
+    - 0x7c6a
+    - 0x7c94
+  ptr_offset: 0x4000
+gyms:
+  title: Gym Theme
+  channels:
+    - 0x7cbb
+    - 0x7d6b
+    - 0x7dfa
+  ptr_offset: 0x4000
+pokemon_center:
+  title: Pokémon Center
+  channels:
+    - 0x7e56
+    - 0x7ef9
+    - 0x7f70
+  ptr_offset: 0x4000
+# Bank 8
+gym_leader_battle:
+  title: Gym Leader Battle
+  channels:
+    - 0x6370
+    - 0x65a1
+    - 0x66ef
+  ptr_offset: 0x1c000
+battle:
+  title: Trainer Battle
+  channels:
+    - 0x6919
+    - 0x6bae
+    - 0x6d10
+  ptr_offset: 0x1c000
+wild_pokemon:
+  title: Wild Pokémon Battle
+  channels:
+    - 0x7099
+    - 0x71d8
+    - 0x7290
+  ptr_offset: 0x1c000
+final_battle:
+  title: Final Battle
+  channels:
+    - 0x73a6
+    - 0x756a
+    - 0x771c
+  ptr_offset: 0x1c000
+defeated_trainer:
+  title: Defeated Trainer
+  channels:
+    - 0x7a53
+    - 0x7ac1
+    - 0x7b15
+  ptr_offset: 0x1c000
+defeated_wild_pokemon:
+  title: Defeated Wild Pokémon
+  channels:
+    - 0x7b74
+    - 0x7bc1
+    - 0x7c0e
+  ptr_offset: 0x1c000
+defeated_gym_leader:
+  title: Defeated Gym Leader
+  channels:
+    - 0x7cad
+    - 0x7d6d
+    - 0x7e52
+  ptr_offset: 0x1c000
+# Bank 1f
+title:
+  title: Title Theme
+  channels:
+    - 0x64c0
+    - 0x6578
+    - 0x6643 # different loop
+    # 0x66eb # percussion
+  ptr_offset: 0x78000
+credits:
+  title: Credits
+  channels:
+    - 0x7c1f
+    - 0x7d5f
+    - 0x7ec2
+  ptr_offset: 0x78000
+hall_of_fame:
+  title: Hall of Fame
+  channels:
+    - 0x7baf
+    - 0x7bda # different loop
+    - 0x7bfc # different loop
+  ptr_offset: 0x78000
+prof_oaks_lab:
+  title: Prof. Oak's Lab
+  channels:
+    - 0x6eb9
+    - 0x6f05
+    - 0x6f52 # different loop
+  ptr_offset: 0x78000
+jigglypuffs_song:
+  title: Jigglypuff's Song
+  channels:
+    - 0x7b7d
+    - 0x7b9a
+  ptr_offset: 0x78000
+bike_riding:
+  title: Biking Theme
+  channels:
+    - 0x5bbb
+    - 0x5c6c
+    - 0x5d14
+    # 0x5e68 # percussion
+  ptr_offset: 0x78000
+surfing:
+  title: Surfing Theme
+  channels:
+    - 0x7a19 # one extra note at end
+    - 0x7a9c
+    - 0x7afa
+  ptr_offset: 0x78000
+casino:
+  title: Rocket Game Corner (Celadon City)
+  channels:
+    - 0x620b
+    - 0x62df
+    - 0x638b
+  ptr_offset: 0x78000
+title_battle:
+  title: Title Battle
+  channels:
+    - 0x7844
+    - 0x78bc
+    - 0x791d
+    # 0x795b # percussion
+  ptr_offset: 0x78000
+rocket_hidehout:
+  title: Rocket Hideout (Celadon City)
+  channels:
+    - 0x5ed1
+    - 0x5fde
+    - 0x60dc
+    # 0x618a # percussion
+  ptr_offset: 0x78000
+viridian_forest_seafoam_islands:
+  title: Viridian Forest, Seafoam Islands
+  channels:
+    - 0x6887
+    - 0x68d8
+    - 0x693b # different loop
+    # 0x69dc # percussion
+  ptr_offset: 0x78000
+mt_moon_rock_tunnel_victory_road:
+  title: Mt. Moon, Rock Tunnel, Victory Road
+  channels:
+    - 0x69f1 # different loop
+    - 0x6b68
+    - 0x6c7a
+    # 0x6ce4 # percussion
+  ptr_offset: 0x78000
+pokemon_mansion:
+  title: Pokémon Mansion (Cinnabar Island)
+  channels:
+    - 0x6d04
+    - 0x6d40
+    - 0x6d7e
+    # 0x6db0 # percussion
+  ptr_offset: 0x78000
+pokemon_tower:
+  title: Pokémon Tower (Lavender Town)
+  channels:
+    - 0x704a # channels are shifted against
+    - 0x70e3 # each other with every repeat
+    - 0x719a
+  ptr_offset: 0x78000
+silph_co:
+  title: Silph Co. Office Building (Saffron City)
+  channels:
+    - 0x7243
+    - 0x7409
+    - 0x75be
+  ptr_offset: 0x78000
+meet_male_trainer:
+  title: Male Trainer Encounter
+  channels:
+    - 0x769d
+    - 0x76ba # different loop
+    - 0x76e6
+  ptr_offset: 0x78000
+meet_female_trainer:
+  title: Female Trainer Encounter
+  channels:
+    - 0x76f9 # different loop
+    - 0x771c
+    - 0x774b
+  ptr_offset: 0x78000
+meet_evil_trainer:
+  title: Evil Trainer Encounter
+  channels:
+    - 0x777b
+    - 0x77a2
+    - 0x77d2
+  ptr_offset: 0x78000
