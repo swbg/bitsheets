@@ -1,10 +1,9 @@
-from typing import List, Optional, Tuple
-
 import numpy as np
 import scipy.signal
 import simpleaudio
 
 from .const import NOTE_FREQS, NOTES
+from .types import ScoresType, ScoreType
 
 
 class Player:
@@ -27,7 +26,7 @@ class Player:
 
     def get_wave(
         self,
-        score: List[Tuple[str, Optional[int], float]],
+        score: ScoreType,
         octave_offset: int = 5,
         speed: float = 1.5,
         cut: float = 0.01,
@@ -59,7 +58,15 @@ class Player:
 
         return w.astype(np.int16)
 
-    def play_score(self, score: List[Tuple[str, Optional[int], float]], **kwargs):
+    def get_waves(self, scores: ScoresType, *args, **kwargs):
+        """
+        Create waves from parsed scores.
+
+        :param score: Parsed score
+        """
+        return [self.get_wave(score, *args, **kwargs) for score in scores]
+
+    def play_score(self, score: ScoreType, **kwargs):
         """
         Play a parsed score.
 

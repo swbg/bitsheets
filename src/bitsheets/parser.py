@@ -88,7 +88,7 @@ class PokemonRBYParser:
                     c_ptr = ret_ptr
                     ret_ptr = None
                 else:
-                    _logger.info(f"Encountered end {hex(byt)}")
+                    _logger.info("Encountered end %s", hex(byt))
                     break
                 debug_msg = f"Jump to {hex(c_ptr)} (3 bytes)"
             elif byt == 0xFD:
@@ -103,7 +103,7 @@ class PokemonRBYParser:
                     ret_ptr = None
                     debug_msg = f"Returning to {hex(c_ptr)} from subroutine"
                 else:
-                    _logger.info(f"Encountered end {hex(byt)}")
+                    _logger.info("Encountered end %s", hex(byt))
                     break
             elif cmd < 0xC:
                 # Note
@@ -120,13 +120,24 @@ class PokemonRBYParser:
                 octave_exp = 8 - arg
                 debug_msg = "Octave"
             else:
-                _logger.warning(f"Encountered unknown byte {hex(byt)}")
+                _logger.warning("Encountered unknown byte %s", hex(byt))
                 debug_msg = ""
                 continue
 
-            _logger.debug(f"{hex(prev_c_ptr)}\t{debug_msg} {hex(byt)}")
+            _logger.debug("%s\t%s %s", hex(prev_c_ptr), debug_msg, hex(byt))
         _logger.info(
             "Obtained score with total duration %f", sum(note[2] for note in score)
         )
 
         return score
+
+    def get_scores(self, music_desc: dict):
+        """
+        Parse scores.
+
+        :param music_desc: Music descriptor, part of pointers file
+        """
+        return [
+            self.parse_from_pointer(ptr=ptr, ptr_offset=music_desc["ptr_offset"])
+            for ptr in music_desc["channels"]
+        ]
