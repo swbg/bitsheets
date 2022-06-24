@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import scipy.signal
 import simpleaudio
@@ -30,7 +32,7 @@ class Player:
         octave_offset: int = 5,
         speed: float = 1.5,
         cut: float = 0.01,
-    ):
+    ) -> np.array:
         """
         Create wave from parsed score.
 
@@ -39,13 +41,13 @@ class Player:
         :param speed: Speed multiplier
         :param cut: Time of silence between two notes
         """
-        durs = [speed * note[2] / 16 for note in score]
+        durs = [speed * note.dur / 16 for note in score]
         total_dur = sum(durs)
         t = np.linspace(0, total_dur, round(total_dur * self.fs), endpoint=False)
         w = np.zeros(t.shape)
 
-        a = 0
-        b = 0
+        a = 0  # start of note
+        b = 0  # end of note
         for i, (note, octave, _) in enumerate(score):
             a = b
             b = round(sum(durs[: i + 1]) * self.fs)
@@ -58,7 +60,7 @@ class Player:
 
         return w.astype(np.int16)
 
-    def get_waves(self, scores: ScoresType, *args, **kwargs):
+    def get_waves(self, scores: ScoresType, *args, **kwargs) -> List[np.array]:
         """
         Create waves from parsed scores.
 
@@ -66,7 +68,7 @@ class Player:
         """
         return [self.get_wave(score, *args, **kwargs) for score in scores]
 
-    def play_score(self, score: ScoreType, **kwargs):
+    def play_score(self, score: ScoreType, **kwargs) -> None:
         """
         Play a parsed score.
 
@@ -76,7 +78,7 @@ class Player:
         w = self.get_wave(score, **kwargs)
         self.play_obj = simpleaudio.play_buffer(w, 1, 2, self.fs)
 
-    def play_wave(self, w: np.array):
+    def play_wave(self, w: np.array) -> None:
         """
         Play a wave array.
 
@@ -85,14 +87,14 @@ class Player:
         self.stop()
         self.play_obj = simpleaudio.play_buffer(w, 1, 2, self.fs)
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Stop playing.
         """
         if self.play_obj:
             self.play_obj.stop()
 
-    def wait_done(self):
+    def wait_done(self) -> None:
         """
         Wait until playing is done.
         """

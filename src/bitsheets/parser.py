@@ -1,6 +1,7 @@
 import logging
 
 from .const import NOTES
+from .types import ParserNote, ScoresType, ScoreType
 
 _logger = logging.getLogger(__name__)
 
@@ -14,7 +15,7 @@ class PokemonRBYParser:
         """
         self.rom = rom
 
-    def parse_from_pointer(self, ptr: int, ptr_offset: int):
+    def parse_from_pointer(self, ptr: int, ptr_offset: int) -> ScoreType:
         """
         Start parsing music from indicated pointer.
 
@@ -108,12 +109,22 @@ class PokemonRBYParser:
             elif cmd < 0xC:
                 # Note
                 score.append(
-                    (NOTES[cmd % 12], octave_exp, (1 + arg) / speed_multiplier)
+                    ParserNote(
+                        note=NOTES[cmd % 12],
+                        octave=octave_exp,
+                        dur=(1 + arg) / speed_multiplier,
+                    )
                 )
                 debug_msg = f"Note {NOTES[cmd % 12]}"
             elif cmd == 0xC:
                 # Rest
-                score.append(("r", None, (1 + arg) / speed_multiplier))
+                score.append(
+                    ParserNote(
+                        note="r",
+                        octave=None,
+                        dur=(1 + arg) / speed_multiplier,
+                    )
+                )
                 debug_msg = "Rest"
             elif cmd == 0xE:
                 # Octave modifier
@@ -131,7 +142,7 @@ class PokemonRBYParser:
 
         return score
 
-    def get_scores(self, music_desc: dict):
+    def get_scores(self, music_desc: dict) -> ScoresType:
         """
         Parse scores.
 
