@@ -2,7 +2,14 @@ import logging
 import string
 from typing import Any, Dict, Tuple
 
-from .types import GroupingType, IntFloat, ParserNote, ScoresType, ScoreType
+from .types import (
+    GroupingElement,
+    GroupingType,
+    IntFloat,
+    ParserNote,
+    ScoresType,
+    ScoreType,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -111,6 +118,15 @@ class LilyPondCommand(LilyPondElement):
         return f"LilyPondCommand({self.cmd!r})"
 
 
+def parse_grouping(sheets_config: Dict) -> GroupingType:
+    """
+    Parse grouping config from sheets config.
+
+    :param sheets_config: Sheets config with grouping info
+    """
+    return [GroupingElement(**config) for config in sheets_config["grouping"]]
+
+
 def _get_lilypond_header(**kwargs) -> str:
     header_args = {"tagline": "www.lilypond.org"}
     header_args.update(kwargs)
@@ -122,7 +138,7 @@ def _get_lilypond_header(**kwargs) -> str:
             out += f' {k}=\\markup {{ \\center-column {{ "{v}" \\vspace #1 }} }}\n'
         else:
             out += f' {k}="{v}"\n'
-    return out + "\n}"
+    return out + "}"
 
 
 def _get_lilypond_paper(**kwargs) -> str:
@@ -138,7 +154,7 @@ def _get_lilypond_paper(**kwargs) -> str:
     out = "\\paper {\n"
     for k, v in paper_args.items():
         out += f" {k}={v}\n"
-    return out + "\n}"
+    return out + "}"
 
 
 def _get_biggest_divisor(
@@ -273,7 +289,7 @@ def _get_lilypond_grouping(grouping: GroupingType, midi: bool = True) -> str:
     return out + "\n}"
 
 
-def dump_score_lilypond(
+def dump_scores_lilypond(
     scores: ScoresType,
     pth: str,
     grouping: list,

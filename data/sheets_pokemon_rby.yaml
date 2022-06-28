@@ -1,0 +1,103 @@
+# Configuration for creating lilypond sheet music
+# Bank 2
+healing:
+  title: Healing Pokémon
+route_01:
+  title: Route 1 Theme
+  grouping:
+    - channels: [1]
+      clef: treble
+    - channels: [2]
+      clef: bass
+  staff_args:
+    repeat: True
+    anacrusis: 2
+    bar_length: 8
+route_03:
+  title: Route 3 Theme
+route_12:
+  title: Route 12 Theme
+route_25:
+  title: Route 25 Theme
+indigo_plateau:
+  title: Indigo Plateau
+pallet_town:
+  title: Pallet Town
+viridian_city:
+  title: Viridian City
+following_person:
+  title: Following Person
+prof_oak:
+  title: Prof. Oak Encounter
+meet_rival_trainer:
+  title: Rival Trainer Encounter
+ss_anne:
+  title: S.S. Anne
+cerulean_city:
+  title: Cerulean City
+celadon_city:
+  title: Celadon City
+cinnabar_island:
+  title: Cinnabar Island
+vermilion_city:
+  title: Vermilion City
+lavender_town:
+  title: Lavender Town
+safari_zone:
+  title: Safari Zone
+gyms:
+  title: Gym Theme
+pokemon_center:
+  title: Pokémon Center
+# Bank 8
+gym_leader_battle:
+  title: Gym Leader Battle
+battle:
+  title: Trainer Battle
+wild_pokemon:
+  title: Wild Pokémon Battle
+final_battle:
+  title: Final Battle
+defeated_trainer:
+  title: Defeated Trainer
+defeated_wild_pokemon:
+  title: Defeated Wild Pokémon
+defeated_gym_leader:
+  title: Defeated Gym Leader
+# Bank 1f
+title:
+  title: Title Theme
+credits:
+  title: Credits
+hall_of_fame:
+  title: Hall of Fame
+prof_oaks_lab:
+  title: Prof. Oak's Lab
+jigglypuffs_song:
+  title: Jigglypuff's Song
+bike_riding:
+  title: Biking Theme
+surfing:
+  title: Surfing Theme
+casino:
+  title: Rocket Game Corner (Celadon City)
+title_battle:
+  title: Title Battle
+rocket_hidehout:
+  title: Rocket Hideout (Celadon City)
+viridian_forest_seafoam_islands:
+  title: Viridian Forest, Seafoam Islands
+mt_moon_rock_tunnel_victory_road:
+  title: Mt. Moon, Rock Tunnel, Victory Road
+pokemon_mansion:
+  title: Pokémon Mansion (Cinnabar Island)
+pokemon_tower:
+  title: Pokémon Tower (Lavender Town)
+silph_co:
+  title: Silph Co. Office Building (Saffron City)
+meet_male_trainer:
+  title: Male Trainer Encounter
+meet_female_trainer:
+  title: Female Trainer Encounter
+meet_evil_trainer:
+  title: Evil Trainer Encounter

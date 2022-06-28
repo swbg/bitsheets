@@ -30,7 +30,7 @@ class Player:
         self,
         score: ScoreType,
         octave_offset: int = 5,
-        speed: float = 1.5,
+        speed: float = 2.0,
         cut: float = 0.01,
     ) -> np.array:
         """

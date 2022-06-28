@@ -40,7 +40,7 @@ def transpose_octave(score: ScoreType, offset: int) -> ScoreType:
     return [note.with_octave_offset(offset) for note in score]
 
 
-def dump_score_json(scores: ScoresType, pth: str) -> None:
+def dump_scores_json(scores: ScoresType, pth: str) -> None:
     """
     Dump scores to JSON file.
 
@@ -58,7 +58,7 @@ def dump_score_json(scores: ScoresType, pth: str) -> None:
         )
 
 
-def dump_score_midi(
+def dump_scores_midi(
     scores: ScoresType, pth: str, dur_multiplier: int = 128, velocity: int = 64
 ) -> None:
     """
