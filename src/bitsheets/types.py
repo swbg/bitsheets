@@ -8,14 +8,22 @@ class ParserNote(NamedTuple):
     octave: Optional[int]
     dur: IntFloat
 
-    def with_octave_offset(self, offset: int):
+    def with_octave_offset(self, offset: int) -> "ParserNote":
         """
-        Return copy of self if octave offset applied.
+        Return copy of self with octave offset applied.
 
         :param offset: Octave offset
         """
         octave = self.octave + offset if self.octave is not None else None
-        return type(self)(note=self.note, octave=octave, dur=self.dur)
+        type(self)({**self._asdict(), "octave": octave})
+
+    def from_dur(self, dur: IntFloat) -> "ParserNote":
+        """
+        Return copy of self with new duration.
+
+        :param dur: New duration
+        """
+        return type(self)({**self._asdict(), "dur": dur})
 
 
 class GroupingElement(NamedTuple):

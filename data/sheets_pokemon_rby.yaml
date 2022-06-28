@@ -2,6 +2,15 @@
 # Bank 2
 healing:
   title: Healing Pokémon
+  grouping:
+    - channels: [0]
+      clef: treble
+    - channels: [1]
+      clef: bass
+  staff_args:
+    repeat: False
+    anacrusis: 0
+    bar_length: 16
 route_01:
   title: Route 1 Theme
   grouping:
@@ -15,6 +24,15 @@ route_01:
     bar_length: 8
 route_03:
   title: Route 3 Theme
+  grouping:
+    - channels: [2]
+      clef: treble
+    - channels: [1]
+      clef: bass
+  staff_args:
+    repeat: True
+    anacrusis: 0
+    bar_length: 16
 route_12:
   title: Route 12 Theme
 route_25:

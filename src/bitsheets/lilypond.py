@@ -157,11 +157,30 @@ def _get_lilypond_paper(**kwargs) -> str:
     return out + "}"
 
 
+def _check_tuplet(val: IntFloat, mul: int, bar_length: int):
+    val_mul = val * (mul / (mul - 1))
+    if abs(val_mul - round(val_mul)) < 1e-5:
+        val_mul = round(val_mul)
+
+        i = bar_length
+        while i >= 2.0:
+            if val_mul == i:
+                return i
+            i /= 2
+    return None
+
+
 def _get_biggest_divisor(
-    val: IntFloat, current_length: int, bar_length: int = 16
+    val: IntFloat, current_length: int, bar_length: int
 ) -> Tuple[IntFloat, IntFloat]:
     assert (bar_length & (bar_length - 1)) == 0  # require power of 2
 
+    # Check for triplets
+    triplet = _check_tuplet(val, 3, bar_length)
+    if triplet is not None:
+        return triplet, -3
+
+    # Check regular lengths
     current_length -= bar_length * (current_length // bar_length)
     across_bars = max(0, (current_length + val) - bar_length)
     val -= across_bars
@@ -171,6 +190,7 @@ def _get_biggest_divisor(
         if val >= i:
             return i, val - i + across_bars
         i /= 2
+
     raise ValueError(f"Could not find biggest divisor for {val}")
 
 
@@ -211,8 +231,14 @@ def _get_lilypond_staff(
         assert lp_anacrusis.is_integer()
         notes.append(LilyPondCommand(f"\\partial {int(lp_anacrusis)}"))
 
+    # Keep track of tuplets
+    tuplet_cnt = None
+    tuplet_len = None
+
     def _add_lilypond_note(note: ParserNote):
         nonlocal total_dur
+        nonlocal tuplet_cnt
+        nonlocal tuplet_len
 
         octave = note.with_octave_offset(octave_offset).octave
 
@@ -222,6 +248,19 @@ def _get_lilypond_staff(
             div_prev = div
             # Determine longest part of note we could write
             div, rem = _get_biggest_divisor(rem, total_dur, bar_length)
+
+            if tuplet_len is None and rem < 0:
+                tuplet_cnt = -rem
+                tuplet_len = -rem
+                notes.append(
+                    LilyPondCommand(
+                        f"\\tuplet {tuplet_len:.0f}/{tuplet_len - 1:.0f} {{"
+                    )
+                )
+
+            if tuplet_len is not None:
+                assert -rem == tuplet_len
+                tuplet_cnt -= 1
 
             if div == div_prev / 2:
                 if total_dur % bar_length == 0:
@@ -239,7 +278,23 @@ def _get_lilypond_staff(
             if rem > 0 and note.note != "r":
                 notes[-1].make_tied()
 
+            if tuplet_len is not None:
+                # Correct before adding to total_dur
+                print("correcting len", div)
+                div *= (tuplet_len - 1) / tuplet_len
+                print("corrected len", div)
+
             total_dur += div
+
+            print("tupletcnt", tuplet_cnt)
+            if tuplet_cnt == 0:
+                # Close tuplet
+                assert total_dur - round(total_dur, 1) < 1e-5
+                total_dur = round(total_dur, 1)
+                tuplet_cnt = None
+                tuplet_len = None
+                notes.append(LilyPondCommand("}"))
+
             if total_dur % bar_length == 0:
                 notes.append(LilyPondBar())
 
