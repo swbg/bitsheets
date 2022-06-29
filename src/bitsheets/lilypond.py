@@ -10,6 +10,7 @@ from .types import (
     ScoresType,
     ScoreType,
 )
+from .utils import is_close_to_round
 
 _logger = logging.getLogger(__name__)
 
@@ -159,7 +160,7 @@ def _get_lilypond_paper(**kwargs) -> str:
 
 def _check_tuplet(val: IntFloat, mul: int, bar_length: int):
     val_mul = val * (mul / (mul - 1))
-    if abs(val_mul - round(val_mul)) < 1e-5:
+    if is_close_to_round(val_mul):
         val_mul = round(val_mul)
 
         i = bar_length
@@ -280,16 +281,13 @@ def _get_lilypond_staff(
 
             if tuplet_len is not None:
                 # Correct before adding to total_dur
-                print("correcting len", div)
                 div *= (tuplet_len - 1) / tuplet_len
-                print("corrected len", div)
 
             total_dur += div
 
-            print("tupletcnt", tuplet_cnt)
             if tuplet_cnt == 0:
                 # Close tuplet
-                assert total_dur - round(total_dur, 1) < 1e-5
+                assert is_close_to_round(total_dur, 1)
                 total_dur = round(total_dur, 1)
                 tuplet_cnt = None
                 tuplet_len = None

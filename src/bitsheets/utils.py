@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import Any
 
 
 class SimpleFilter(logging.Filter):
@@ -60,3 +61,14 @@ def set_up_logging(loglevel: int, filename: str = None) -> None:
 
     for logger in [logging.getLogger(name) for name in logging.root.manager.loggerDict]:
         logger.setLevel(loglevel)
+
+
+def is_close_to_round(val: Any, ndigits: int = 0, eps: float = 1e-5) -> bool:
+    """
+    Return whether value is close to rounded value.
+
+    :param val: Value to check
+    :param ndigits: Number of digits to round to
+    :param eps: Tolerance
+    """
+    return abs(val - round(val, ndigits)) < eps

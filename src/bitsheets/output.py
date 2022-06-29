@@ -3,7 +3,7 @@ import json
 from mido import Message, MidiFile, MidiTrack
 
 from .const import NOTES
-from .types import ScoresType, ScoreType
+from .types import ScoresType
 
 
 def get_midi_note(note: str, octave: int) -> int:
@@ -28,16 +28,6 @@ def get_piano_note(note: str, octave: int) -> int:
     if note not in NOTES or octave is None:
         return -1
     return get_midi_note(note, octave) - 20
-
-
-def transpose_octave(score: ScoreType, offset: int) -> ScoreType:
-    """
-    Transpose a score by the specified octave offset.
-
-    :param score: Score to transpose
-    :param offset: Octave offset
-    """
-    return [note.with_octave_offset(offset) for note in score]
 
 
 def dump_scores_json(scores: ScoresType, pth: str) -> None:

@@ -33,8 +33,24 @@ route_03:
     repeat: True
     anacrusis: 0
     bar_length: 16
+  processing:
+    1: [combine_rests]
+    2: [eat_rests]
 route_12:
   title: Route 12 Theme
+  grouping:
+    - channels: [1]
+      clef: treble
+    - channels: [0]
+      clef: bass
+  staff_args:
+    repeat: True
+    anacrusis: 0
+    bar_length: 16
+  processing:
+    1:
+      - combine_irregular_notes
+      - [transpose_octave, { offset: 1 }]
 route_25:
   title: Route 25 Theme
 indigo_plateau:
