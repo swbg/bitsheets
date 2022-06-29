@@ -1,6 +1,6 @@
 import logging
 import string
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 from .types import (
     GroupingElement,
@@ -20,7 +20,9 @@ class LilyPondElement:
 
 
 class LilyPondNote(LilyPondElement):
-    def __init__(self, note: str, octave: int, dur: IntFloat):
+    def __init__(
+        self, note: Union[str, List[str]], octave: Union[int, List[int]], dur: IntFloat
+    ):
         """
         Class representing single lilypond note.
 
@@ -62,13 +64,21 @@ class LilyPondNote(LilyPondElement):
         self.tied = False
 
     def __str__(self):
+        suffix = str(self.dur) + self.dots * "." + self.tied * "~"
+
         if self.note == "r":
-            octave_mod = ""
-        else:
+            return self.note + suffix
+        elif isinstance(self.note, str):
+            assert isinstance(self.octave, int)
             octave_mod = max(0, self.octave) * "'" + abs(min(0, self.octave)) * ","
-        return (
-            self.note + octave_mod + str(self.dur) + self.dots * "." + self.tied * "~"
-        )
+            return self.note + octave_mod + suffix
+        elif isinstance(self.note, list):
+            octave_mods = [max(0, o) * "'" + abs(min(0, o)) * "," for o in self.octave]
+            return (
+                f"<{' '.join(n + o for n, o in zip(self.note, octave_mods))}>{suffix}"
+            )
+        else:
+            raise ValueError("Type of note must be str or List[str]")
 
     def __repr__(self):
         return (

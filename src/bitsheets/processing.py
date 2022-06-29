@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 from typing import Dict
 
 from .types import IntFloat, ScoresType, ScoreType
@@ -14,18 +14,20 @@ def apply_processing(scores: ScoresType, sheets_config: Dict) -> ScoresType:
     """
     scores = copy(scores)
 
-    if "processing" not in sheets_config:
-        return scores
+    if "processing" in sheets_config:
+        for i in range(len(scores)):
+            if i not in sheets_config["processing"]:
+                continue
 
-    for i in range(len(scores)):
-        if i not in sheets_config["processing"]:
-            continue
+            for op in sheets_config["processing"][i]:
+                if isinstance(op, str):
+                    op = [op, {}]
+                fun, args = op
+                scores[i] = globals()[fun](scores[i], **args)
 
-        for op in sheets_config["processing"][i]:
-            if isinstance(op, str):
-                op = [op, {}]
-            fun, args = op
-            scores[i] = globals()[fun](scores[i], **args)
+    if "chords" in sheets_config:
+        ia, ib = sheets_config["chords"]
+        scores.append(make_chords(scores[ia], scores[ib]))
 
     return scores
 
@@ -39,7 +41,7 @@ def score_dur(score: ScoreType) -> IntFloat:
     return sum(s.dur for s in score)
 
 
-def transpose_octave(score: ScoreType, offset: int) -> ScoreType:
+def transpose_score_octave(score: ScoreType, offset: int) -> ScoreType:
     """
     Transpose a score by the specified octave offset.
 
@@ -49,12 +51,27 @@ def transpose_octave(score: ScoreType, offset: int) -> ScoreType:
     return [note.with_octave_offset(offset) for note in score]
 
 
+def transpose_note_octave(score: ScoreType, offset: int, index: int) -> ScoreType:
+    """
+    Transpose single note in a score by the specified octave offset.
+
+    :param score: Score to transpose
+    :param offset: Octave offset
+    :param index: Note index
+    """
+    return [
+        copy(note) if i != index else note.with_octave_offset(offset)
+        for i, note in enumerate(score)
+    ]
+
+
 def combine_rests(score: ScoreType) -> ScoreType:
     """
     Combine successive rests to a single rest.
 
     :param score: Score to process
     """
+    score = deepcopy(score)
     new_score = [score[0]]
 
     for note in score[1:]:
@@ -75,6 +92,7 @@ def combine_irregular_notes(score: ScoreType) -> ScoreType:
 
     :param score: Score to process
     """
+    score = deepcopy(score)
     new_score = [score[0]]
 
     for note in score[1:]:
@@ -106,6 +124,7 @@ def eat_rests(score: ScoreType, max_dur: float = 0.5) -> ScoreType:
     :param score: Score to process
     :param max_dur: Maxiumum duration of rests to remove
     """
+    score = deepcopy(score)
     new_score = []
 
     for note in score:
@@ -118,5 +137,30 @@ def eat_rests(score: ScoreType, max_dur: float = 0.5) -> ScoreType:
         new_score.append(note)
 
     assert score_dur(new_score) == score_dur(score)
+
+    return new_score
+
+
+def make_chords(scorea: ScoreType, scoreb: ScoreType) -> ScoreType:
+    """
+    Combine two scores and create chords.
+
+    :param scorea: First score
+    :param scoreb: Second score
+    """
+    new_score = []
+
+    assert len(scorea) == len(scoreb)
+    assert score_dur(scorea) == score_dur(scoreb)
+
+    for na, nb in zip(scorea, scoreb):
+        assert na.dur == nb.dur
+
+        if na.note == "r":
+            new_score.append(copy(na))
+        elif nb.note == "r":
+            new_score.append(copy(nb))
+        else:
+            new_score.append(na.from_notes(na, nb))
 
     return new_score

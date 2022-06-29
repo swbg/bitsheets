@@ -9,8 +9,6 @@ healing:
       clef: bass
   staff_args:
     repeat: False
-    anacrusis: 0
-    bar_length: 16
 route_01:
   title: Route 1 Theme
   grouping:
@@ -31,8 +29,7 @@ route_03:
       clef: bass
   staff_args:
     repeat: True
-    anacrusis: 0
-    bar_length: 16
+
   processing:
     1: [combine_rests]
     2: [eat_rests]
@@ -45,16 +42,32 @@ route_12:
       clef: bass
   staff_args:
     repeat: True
-    anacrusis: 0
-    bar_length: 16
   processing:
     1:
       - combine_irregular_notes
-      - [transpose_octave, { offset: 1 }]
+      - [transpose_score_octave, { offset: 1 }]
 route_25:
   title: Route 25 Theme
+  grouping:
+    - channels: [1]
+      clef: treble
+    - channels: [0]
+      clef: bass
+  staff_args:
+    repeat: True
+  processing:
+    1:
+      - [transpose_note_octave, { offset: 1, index: 8 }]
 indigo_plateau:
   title: Indigo Plateau
+  grouping:
+    - channels: [2]
+      clef: treble
+    - channels: [3] # chords
+      clef: bass
+  staff_args:
+    repeat: True
+  chords: [0, 1]
 pallet_town:
   title: Pallet Town
 viridian_city:

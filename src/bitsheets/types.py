@@ -4,8 +4,8 @@ IntFloat = Union[int, float]
 
 
 class ParserNote(NamedTuple):
-    note: str
-    octave: Optional[int]
+    note: Union[str, List[str]]
+    octave: Optional[Union[int, List[int]]]
     dur: IntFloat
 
     def with_octave_offset(self, offset: int) -> "ParserNote":
@@ -14,8 +14,30 @@ class ParserNote(NamedTuple):
 
         :param offset: Octave offset
         """
-        octave = self.octave + offset if self.octave is not None else None
+        if self.octave is None:
+            octave = None
+        elif isinstance(self.octave, int):
+            octave = self.octave + offset
+        elif isinstance(self.octave, list):
+            octave = [o + offset for o in self.octave]
+        else:
+            raise ValueError("Type of octave must be int or List[int]")
+
         return type(self)(**{**self._asdict(), "octave": octave})
+
+    def from_notes(self, *notes: List["ParserNote"]) -> "ParserNote":
+        """
+        Return copy of self with new note.
+
+        :param notes: Parser notes to combine
+        """
+        return type(self)(
+            **{
+                **self._asdict(),
+                "note": [n.note for n in notes],
+                "octave": [n.octave for n in notes],
+            }
+        )
 
     def from_dur(self, dur: IntFloat) -> "ParserNote":
         """
