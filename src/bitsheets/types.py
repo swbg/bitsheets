@@ -12,7 +12,7 @@ class ParserNote:
         self,
         note: Union[str, List[str]],
         octave: Optional[Union[int, List[int]]],
-        dur: IntFloat,
+        dur: Optional[IntFloat] = None,
     ):
         """
         Class for representing parser note.
@@ -29,6 +29,22 @@ class ParserNote:
 
     def _as_dict(self):
         return {"note": self.note, "octave": self.octave, "dur": self.dur}
+
+    def with_semitone_offset(self, offset: int) -> "ParserNote":
+        """
+        Return copy of self with semitone offset applied.
+
+        :param offset: Semitone offset
+        """
+        new_note_idx = NOTES.index(self.note) + offset
+        octave_offset = new_note_idx // 12
+        return type(self)(
+            **{
+                **self._as_dict(),
+                "note": NOTES[new_note_idx % 12],
+                "octave": self.octave + octave_offset,
+            }
+        )
 
     def with_octave_offset(self, offset: int) -> "ParserNote":
         """

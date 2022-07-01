@@ -2,6 +2,7 @@ import logging
 import string
 from typing import Any, Dict, List, Tuple, Union
 
+from .theory import get_most_likely_key
 from .types import (
     GroupingElement,
     GroupingType,
@@ -332,25 +333,31 @@ def _get_lilypond_staff(
     return "{\n " + " ".join(str(note) for note in notes) + "}"
 
 
-def _get_lilypond_grouping(grouping: GroupingType, midi: bool = True) -> str:
+def _get_lilypond_grouping(
+    grouping: GroupingType, key: Tuple[str, str], midi: bool
+) -> str:
     """
     Get lilypond staff grouping.
 
     :param grouping: List of list with voices per staff
+    :param key: Key as (tonic, mode)
+    :param midi: Whether to request midi output
     """
     abc = string.ascii_uppercase
     out = "\\score {\n \\new GrandStaff <<"
+
+    key_cmd = f"\\key {key[0]} \\{key[1]}"
     for staff in grouping:
         if staff.part_combine:
             out += (
                 "\n  \\new Staff \\with { printPartCombineTexts = ##f } "
-                + f"{{\\clef {staff.clef} <<\\partCombine "
+                + f"{{\\clef {staff.clef} {key_cmd} <<\\partCombine "
                 + " ".join([f"\\channel{abc[i]}" for i in staff.channels])
                 + ">>}"
             )
         else:
             out += (
-                f"\n  \\new Staff {{\\clef {staff.clef} <<"
+                f"\n  \\new Staff {{\\clef {staff.clef} {key_cmd} <<"
                 + " \\\\ ".join([f"\\channel{abc[i]}" for i in staff.channels])
                 + ">>}"
             )
@@ -380,6 +387,8 @@ def dump_scores_lilypond(
     :param midi: Whether to request midi output
     :param staff_args: Staff arguments
     """
+    key = get_most_likely_key(scores)
+
     with open(pth, "w") as f:
         f.write('\\version "2.22.2"')
         f.write("\n" + _get_lilypond_paper(**(paper_args or {})))
@@ -392,4 +401,4 @@ def dump_scores_lilypond(
                 staff = _get_lilypond_staff(score, octave_offset, **(staff_args or {}))
                 f.write(f"\nchannel{abc[i]} = {staff}")
 
-        f.write("\n" + _get_lilypond_grouping(grouping, midi=midi))
+        f.write("\n" + _get_lilypond_grouping(grouping, key=key, midi=midi))
