@@ -341,11 +341,19 @@ def _get_lilypond_grouping(grouping: GroupingType, midi: bool = True) -> str:
     abc = string.ascii_uppercase
     out = "\\score {\n \\new GrandStaff <<"
     for staff in grouping:
-        out += (
-            f"\n  \\new Staff {{\\clef {staff.clef} <<"
-            + " \\\\ ".join([f"\\channel{abc[i]}" for i in staff.channels])
-            + ">>}"
-        )
+        if staff.part_combine:
+            out += (
+                "\n  \\new Staff \\with { printPartCombineTexts = ##f } "
+                + f"{{\\clef {staff.clef} <<\\partCombine "
+                + " ".join([f"\\channel{abc[i]}" for i in staff.channels])
+                + ">>}"
+            )
+        else:
+            out += (
+                f"\n  \\new Staff {{\\clef {staff.clef} <<"
+                + " \\\\ ".join([f"\\channel{abc[i]}" for i in staff.channels])
+                + ">>}"
+            )
     out += "\n >>"
     if midi:
         out += "\n \\midi {}"

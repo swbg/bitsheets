@@ -12,27 +12,38 @@ healing:
 route_01:
   title: Route 1 Theme
   grouping:
-    - channels: [1]
+    - channels: [1, 2]
       clef: treble
-    - channels: [2]
+      part_combine: True
+    - channels: [0]
       clef: bass
   staff_args:
     repeat: True
     anacrusis: 2
     bar_length: 8
+  processing:
+    0:
+      - [transpose_score_octave, { offset: -1 }]
 route_03:
   title: Route 3 Theme
   grouping:
-    - channels: [2]
+    - channels: [0, 1]
       clef: treble
-    - channels: [1]
+      part_combine: True
+    - channels: [2]
       clef: bass
   staff_args:
     repeat: True
-
   processing:
-    1: [combine_rests]
-    2: [eat_rests]
+    0:
+      - combine_rests
+      - [transpose_score_octave, { offset: 2 }]
+    1:
+      - combine_rests
+      - [transpose_score_octave, { offset: 1 }]
+    2:
+      - [eat_rests, { max_dur: 1.0 }]
+      - [transpose_score_octave, { offset: -1 }]
 route_12:
   title: Route 12 Theme
   grouping:
@@ -70,8 +81,29 @@ indigo_plateau:
   chords: [0, 1]
 pallet_town:
   title: Pallet Town
+  grouping:
+    - channels: [1]
+      clef: treble
+    - channels: [0]
+      clef: bass
+  staff_args:
+    repeat: True
+  processing:
+    0:
+      - [transpose_score_octave, { offset: -1 }]
 viridian_city:
   title: Viridian City
+  grouping:
+    - channels: [1, 0]
+      clef: treble
+      part_combine: True
+    - channels: [2]
+      clef: treble
+  processing:
+    0:
+      - [transpose_score_octave, { offset: 1 }]
+    1:
+      - [transpose_score_below, { t_note: "c", t_octave: 4 }]
 following_person:
   title: Following Person
 prof_oak:

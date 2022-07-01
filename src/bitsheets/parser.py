@@ -137,7 +137,7 @@ class PokemonRBYParser:
 
             _logger.debug("%s\t%s %s", hex(prev_c_ptr), debug_msg, hex(byt))
         _logger.info(
-            "Obtained score with total duration %f", sum(note[2] for note in score)
+            "Obtained score with total duration %f", sum(note.dur for note in score)
         )
 
         return score

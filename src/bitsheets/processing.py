@@ -1,7 +1,7 @@
 from copy import copy, deepcopy
 from typing import Dict
 
-from .types import IntFloat, ScoresType, ScoreType
+from .types import IntFloat, ParserNote, ScoresType, ScoreType
 from .utils import is_close_to_round
 
 
@@ -162,5 +162,26 @@ def make_chords(scorea: ScoreType, scoreb: ScoreType) -> ScoreType:
             new_score.append(copy(nb))
         else:
             new_score.append(na.from_notes(na, nb))
+
+    return new_score
+
+
+def transpose_score_below(score: ScoreType, t_note: str, t_octave: int):
+    """
+    Transpose all notes in score below threshold in octaves until above threshold.
+
+    :param score: Score to process
+    :param t_note: Note threshold
+    :param t_octave: Octave threshold
+    """
+    new_score = []
+
+    thresholds = [ParserNote(t_note, o, 0) for o in range(t_octave, 0, -1)]
+
+    for note in score:
+        for i in range(len(thresholds)):
+            if note >= thresholds[i]:
+                break
+        new_score.append(note.with_octave_offset(i))
 
     return new_score
