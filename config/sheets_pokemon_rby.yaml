@@ -19,8 +19,6 @@ route_01:
       clef: bass
   staff_args:
     repeat: True
-    anacrusis: 2
-    bar_length: 8
   processing:
     0:
       - [transpose_score_octave, { offset: -1 }]
