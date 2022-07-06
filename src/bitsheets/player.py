@@ -5,7 +5,7 @@ import scipy.signal
 import simpleaudio
 
 from .const import NOTE_FREQS, NOTES
-from .types import ScoresType, ScoreType
+from .types import Score, ScoresType
 
 
 class Player:
@@ -28,7 +28,7 @@ class Player:
 
     def get_wave(
         self,
-        score: ScoreType,
+        score: Score,
         octave_offset: int = 5,
         speed: float = 2.0,
         cut: float = 0.01,
@@ -68,7 +68,7 @@ class Player:
         """
         return [self.get_wave(score, *args, **kwargs) for score in scores]
 
-    def play_score(self, score: ScoreType, **kwargs) -> None:
+    def play_score(self, score: Score, **kwargs) -> None:
         """
         Play a parsed score.
 

@@ -3,14 +3,7 @@ import string
 from typing import Any, Dict, List, Tuple, Union
 
 from .theory import get_most_likely_key
-from .types import (
-    GroupingElement,
-    GroupingType,
-    IntFloat,
-    ParserNote,
-    ScoresType,
-    ScoreType,
-)
+from .types import GroupingElement, GroupingType, IntFloat, Note, Score, ScoresType
 from .utils import is_close_to_round
 
 _logger = logging.getLogger(__name__)
@@ -207,7 +200,7 @@ def _get_biggest_divisor(
 
 
 def _get_lilypond_staff(
-    score: ScoreType,
+    score: Score,
     octave_offset: int,
     bar_length: int = 16,
     beats_per_whole: int = 16,
@@ -247,7 +240,7 @@ def _get_lilypond_staff(
     tuplet_cnt = None
     tuplet_len = None
 
-    def _add_lilypond_note(note: ParserNote):
+    def _add_lilypond_note(note: Note):
         nonlocal total_dur
         nonlocal tuplet_cnt
         nonlocal tuplet_len
@@ -323,7 +316,7 @@ def _get_lilypond_staff(
 
     if fill_end and total_dur % bar_length != 0:
         rem_dur = bar_length - total_dur % bar_length
-        _add_lilypond_note(ParserNote(note="r", octave=None, dur=rem_dur))
+        _add_lilypond_note(Note(note="r", octave=None, dur=rem_dur))
 
     assert isinstance(notes[-1], LilyPondBar)
     notes[-1].make_end(repeat)

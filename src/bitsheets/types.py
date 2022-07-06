@@ -7,7 +7,7 @@ IntFloat = Union[int, float]
 
 
 @total_ordering
-class ParserNote:
+class Note:
     def __init__(
         self,
         note: Union[str, List[str]],
@@ -30,7 +30,7 @@ class ParserNote:
     def _as_dict(self):
         return {"note": self.note, "octave": self.octave, "dur": self.dur}
 
-    def with_semitone_offset(self, offset: int) -> "ParserNote":
+    def with_semitone_offset(self, offset: int) -> "Note":
         """
         Return copy of self with semitone offset applied.
 
@@ -46,7 +46,7 @@ class ParserNote:
             }
         )
 
-    def with_octave_offset(self, offset: int) -> "ParserNote":
+    def with_octave_offset(self, offset: int) -> "Note":
         """
         Return copy of self with octave offset applied.
 
@@ -63,7 +63,7 @@ class ParserNote:
 
         return type(self)(**{**self._as_dict(), "octave": octave})
 
-    def from_notes(self, *notes: List["ParserNote"]) -> "ParserNote":
+    def from_notes(self, *notes: List["Note"]) -> "Note":
         """
         Return copy of self with new note.
 
@@ -77,13 +77,13 @@ class ParserNote:
             }
         )
 
-    def from_dur(self, dur: IntFloat) -> "ParserNote":
+    def from_dur(self, dur: IntFloat) -> "Note":
         """
         Return copy of self with new duration.
 
         :param dur: New duration
         """
-        return type(self)(**{**self._asdict(), "dur": dur})
+        return type(self)(**{**self._as_dict(), "dur": dur})
 
     def __iter__(self):
         return iter((self.note, self.octave, self.dur))
@@ -100,8 +100,79 @@ class ParserNote:
         return NOTES.index(self.note) < NOTES.index(other.note)
 
     def __repr__(self):
+        return f"Note(note={self.note!r}, octave={self.octave!r}, dur={self.dur!r})"
+
+
+class Score:
+    def __init__(self, notes: Optional[List[Note]] = None):
+        """
+        Class representing score.
+
+        :param notes: Notes of score
+        """
+        if notes is None:
+            notes = []
+        self.notes = notes
+
+    def append(self, note: Note):
+        """
+        Append note.
+
+        :param note: Note to a append
+        """
+        self.notes.append(note)
+
+    def extend(self, notes: List[Note]):
+        """
+        Append notes.
+
+        :param note: Notes to a append
+        """
+        self.notes.extend(notes)
+
+    def __getitem__(self, key: int):
+        return self.notes.__getitem__(key)
+
+    def __setitem__(self, key: int, value: Note):
+        return self.notes.__setitem__(key, value)
+
+    def __iter__(self):
+        return iter(self.notes)
+
+    def __len__(self):
+        return self.notes.__len__()
+
+    def idx_at_dur(self, dur: IntFloat) -> int:
+        """
+        Return index of note playing at spcified duration.
+
+        :param dur: Duration from beginning of score
+        """
+        current_dur = 0
+        current_idx = 0
+        while current_dur < dur:
+            if current_idx == len(self.notes):
+                break
+            current_dur += self.notes[current_idx].dur
+            current_idx += 1
+        else:
+            return current_idx
+        return None
+
+    def note_at_dur(self, dur: IntFloat) -> Note:
+        """
+        Return note playing at spcified duration.
+
+        :param dur: Duration from beginning of score
+        """
+        idx = self.idx_at_dur(dur)
+        if idx is None:
+            return None
+        return self.notes[idx]
+
+    def __repr__(self):
         return (
-            f"ParserNote(note={self.note!r}, octave={self.octave!r}, dur={self.dur!r})"
+            "Score([\n    " + ",\n    ".join(repr(note) for note in self.notes) + "\n])"
         )
 
 
@@ -111,6 +182,5 @@ class GroupingElement(NamedTuple):
     part_combine: bool = False
 
 
-ScoreType = List[ParserNote]
-ScoresType = List[ScoreType]
+ScoresType = List[Score]
 GroupingType = List[GroupingElement]

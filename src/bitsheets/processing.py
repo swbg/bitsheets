@@ -1,7 +1,7 @@
 from copy import copy, deepcopy
-from typing import Dict
+from typing import Dict, List, Tuple, Union
 
-from .types import IntFloat, ParserNote, ScoresType, ScoreType
+from .types import IntFloat, Note, Score, ScoresType
 from .utils import is_close_to_round
 
 
@@ -25,6 +25,12 @@ def apply_processing(scores: ScoresType, sheets_config: Dict) -> ScoresType:
                 fun, args = op
                 scores[i] = globals()[fun](scores[i], **args)
 
+                # Unpack scores if multiple where returned
+                if isinstance(scores[i], Tuple):
+                    for score in scores[i][1:]:
+                        scores.append(score)
+                    scores[i] = scores[i][0]
+
     if "chords" in sheets_config:
         ia, ib = sheets_config["chords"]
         scores.append(make_chords(scores[ia], scores[ib]))
@@ -32,7 +38,7 @@ def apply_processing(scores: ScoresType, sheets_config: Dict) -> ScoresType:
     return scores
 
 
-def score_dur(score: ScoreType) -> IntFloat:
+def score_dur(score: Score) -> IntFloat:
     """
     Calculate total duration of score.
 
@@ -41,38 +47,69 @@ def score_dur(score: ScoreType) -> IntFloat:
     return sum(s.dur for s in score)
 
 
-def transpose_score_octave(score: ScoreType, offset: int) -> ScoreType:
+def transpose_score_octave(score: Score, offset: int) -> Score:
     """
     Transpose a score by the specified octave offset.
 
     :param score: Score to transpose
     :param offset: Octave offset
     """
-    return [note.with_octave_offset(offset) for note in score]
+    return Score([note.with_octave_offset(offset) for note in score])
 
 
-def transpose_note_octave(score: ScoreType, offset: int, index: int) -> ScoreType:
+def transpose_note_octave(
+    score: Score, offset: int, index: Union[int, List[int]]
+) -> Score:
     """
-    Transpose single note in a score by the specified octave offset.
+    Transpose note(s) at index/indices in a score by the specified octave offset.
 
     :param score: Score to transpose
     :param offset: Octave offset
-    :param index: Note index
+    :param index: Note index/indices
     """
-    return [
-        copy(note) if i != index else note.with_octave_offset(offset)
-        for i, note in enumerate(score)
-    ]
+    if isinstance(index, int):
+        index = [index]
+
+    # Support negative indices
+    index = [i if i >= 0 else i + len(score) for i in index]
+
+    return Score(
+        [
+            note.with_octave_offset(offset) if i in index else copy(note)
+            for i, note in enumerate(score)
+        ]
+    )
 
 
-def combine_rests(score: ScoreType) -> ScoreType:
+def remove_note(score: Score, index: Union[int, List[int]]) -> Score:
+    """
+    Remove note(s) at index/indices.
+
+    :param score: Score to process
+    :param index: Note index/indices
+    """
+    if isinstance(index, int):
+        index = [index]
+
+    # Support negative indices
+    index = [i if i >= 0 else i + len(score) for i in index]
+
+    return Score(
+        [
+            Note("r", None, note.dur) if i in index else copy(note)
+            for i, note in enumerate(score)
+        ]
+    )
+
+
+def combine_rests(score: Score) -> Score:
     """
     Combine successive rests to a single rest.
 
     :param score: Score to process
     """
     score = deepcopy(score)
-    new_score = [score[0]]
+    new_score = Score([score[0]])
 
     for note in score[1:]:
         if new_score[-1].note == "r" and note.note == "r":
@@ -86,14 +123,14 @@ def combine_rests(score: ScoreType) -> ScoreType:
     return new_score
 
 
-def combine_irregular_notes(score: ScoreType) -> ScoreType:
+def combine_irregular_notes(score: Score) -> Score:
     """
     Combine successive irregular-duration notes of same pitch.
 
     :param score: Score to process
     """
     score = deepcopy(score)
-    new_score = [score[0]]
+    new_score = Score([score[0]])
 
     for note in score[1:]:
         if (
@@ -117,7 +154,7 @@ def combine_irregular_notes(score: ScoreType) -> ScoreType:
     return new_score
 
 
-def eat_rests(score: ScoreType, max_dur: float = 0.5) -> ScoreType:
+def eat_rests(score: Score, max_dur: float = 0.5) -> Score:
     """
     Remove short rests and add duration to preceeding note instead.
 
@@ -125,7 +162,7 @@ def eat_rests(score: ScoreType, max_dur: float = 0.5) -> ScoreType:
     :param max_dur: Maxiumum duration of rests to remove
     """
     score = deepcopy(score)
-    new_score = []
+    new_score = Score()
 
     for note in score:
         if note.note == "r" and note.dur <= max_dur:
@@ -141,14 +178,35 @@ def eat_rests(score: ScoreType, max_dur: float = 0.5) -> ScoreType:
     return new_score
 
 
-def make_chords(scorea: ScoreType, scoreb: ScoreType) -> ScoreType:
+def transpose_score_below(score: Score, t_note: str, t_octave: int):
+    """
+    Transpose all notes in score below threshold in octaves until above threshold.
+
+    :param score: Score to process
+    :param t_note: Note threshold
+    :param t_octave: Octave threshold
+    """
+    new_score = Score()
+
+    thresholds = [Note(t_note, o, 0) for o in range(t_octave, 0, -1)]
+
+    for note in score:
+        for i in range(len(thresholds)):
+            if note >= thresholds[i]:
+                break
+        new_score.append(note.with_octave_offset(i))
+
+    return new_score
+
+
+def make_chords(scorea: Score, scoreb: Score) -> Score:
     """
     Combine two scores and create chords.
 
     :param scorea: First score
     :param scoreb: Second score
     """
-    new_score = []
+    new_score = Score()
 
     assert len(scorea) == len(scoreb)
     assert score_dur(scorea) == score_dur(scoreb)
@@ -166,22 +224,33 @@ def make_chords(scorea: ScoreType, scoreb: ScoreType) -> ScoreType:
     return new_score
 
 
-def transpose_score_below(score: ScoreType, t_note: str, t_octave: int):
+def split_notes(score: Score, index: Union[int, List[int]]) -> Tuple[Score, Score]:
     """
-    Transpose all notes in score below threshold in octaves until above threshold.
+    Remove note(s) at index/indices from score and add to new score.
 
     :param score: Score to process
-    :param t_note: Note threshold
-    :param t_octave: Octave threshold
+    :param index: Index/indices to remove
     """
-    new_score = []
+    if isinstance(index, int):
+        index = [index]
 
-    thresholds = [ParserNote(t_note, o, 0) for o in range(t_octave, 0, -1)]
+    # Support negative indices
+    index = [i if i >= 0 else i + len(score) for i in index]
 
-    for note in score:
-        for i in range(len(thresholds)):
-            if note >= thresholds[i]:
-                break
-        new_score.append(note.with_octave_offset(i))
+    scorea = Score(
+        [
+            note if i not in index else Note("r", None, note.dur)
+            for i, note in enumerate(score)
+        ]
+    )
+    scoreb = Score(
+        [
+            note if i in index else Note("r", None, note.dur)
+            for i, note in enumerate(score)
+        ]
+    )
 
-    return new_score
+    scorea = combine_rests(scorea)
+    scoreb = combine_rests(scoreb)
+
+    return scorea, scoreb

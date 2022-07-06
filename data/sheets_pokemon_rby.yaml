@@ -15,7 +15,7 @@ route_01:
     - channels: [1, 2]
       clef: treble
       part_combine: True
-    - channels: [0]
+    - channels: [0] # channel 3 ignored
       clef: bass
   staff_args:
     repeat: True
@@ -24,6 +24,9 @@ route_01:
   processing:
     0:
       - [transpose_score_octave, { offset: -1 }]
+    2:
+      - [remove_note, { index: -1 }]
+      - [split_notes, { index: [-7, -6, -3, -2] }] # creates channel 3
 route_03:
   title: Route 3 Theme
   grouping:
@@ -74,11 +77,11 @@ indigo_plateau:
   grouping:
     - channels: [2]
       clef: treble
-    - channels: [3] # chords
+    - channels: [3]
       clef: bass
   staff_args:
     repeat: True
-  chords: [0, 1]
+  chords: [0, 1] # creates channel 3
 pallet_town:
   title: Pallet Town
   grouping:

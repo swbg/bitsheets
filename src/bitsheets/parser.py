@@ -1,7 +1,7 @@
 import logging
 
 from .const import NOTES
-from .types import ParserNote, ScoresType, ScoreType
+from .types import Note, Score, ScoresType
 
 _logger = logging.getLogger(__name__)
 
@@ -15,14 +15,14 @@ class PokemonRBYParser:
         """
         self.rom = rom
 
-    def parse_from_pointer(self, ptr: int, ptr_offset: int) -> ScoreType:
+    def parse_from_pointer(self, ptr: int, ptr_offset: int) -> Score:
         """
         Start parsing music from indicated pointer.
 
         :param ptr: Start pointer
         :param ptr_offset: Bank-specific pointer offset
         """
-        score = []
+        score = Score()
 
         c_ptr = ptr_offset + ptr
         ret_ptr = None
@@ -109,7 +109,7 @@ class PokemonRBYParser:
             elif cmd < 0xC:
                 # Note
                 score.append(
-                    ParserNote(
+                    Note(
                         note=NOTES[cmd % 12],
                         octave=octave_exp,
                         dur=(1 + arg) / speed_multiplier,
@@ -119,7 +119,7 @@ class PokemonRBYParser:
             elif cmd == 0xC:
                 # Rest
                 score.append(
-                    ParserNote(
+                    Note(
                         note="r",
                         octave=None,
                         dur=(1 + arg) / speed_multiplier,

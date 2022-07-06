@@ -27,7 +27,7 @@ def get_piano_note(note: str, octave: int) -> int:
     """
     if note not in NOTES or octave is None:
         return -1
-    return get_midi_note(note, octave) - 20
+    return get_midi_note(note, octave) - 21
 
 
 def dump_scores_json(scores: ScoresType, pth: str) -> None:

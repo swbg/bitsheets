@@ -1,4 +1,4 @@
-from .types import ParserNote, ScoresType
+from .types import Note, ScoresType
 
 
 def get_circle_of_fifths(mode: str = "major"):
@@ -8,9 +8,9 @@ def get_circle_of_fifths(mode: str = "major"):
     :param mode: Mode
     """
     if mode == "major":
-        circle = [ParserNote(note="c", octave=4)]
+        circle = [Note(note="c", octave=4)]
     elif mode == "minor":
-        circle = [ParserNote(note="a", octave=3)]
+        circle = [Note(note="a", octave=3)]
     else:
         raise ValueError("Expected one of 'major', 'minor' as mode")
 
@@ -19,7 +19,7 @@ def get_circle_of_fifths(mode: str = "major"):
     return circle
 
 
-def get_major_scale(tonic: ParserNote):
+def get_major_scale(tonic: Note):
     """
     Get major scale of tonic.
 
@@ -32,7 +32,7 @@ def get_major_scale(tonic: ParserNote):
     return scale
 
 
-def get_natural_minor_scale(tonic: ParserNote):
+def get_natural_minor_scale(tonic: Note):
     """
     Get natural minor scale of tonic.
 
