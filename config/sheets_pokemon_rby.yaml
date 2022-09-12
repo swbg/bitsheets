@@ -7,8 +7,6 @@ healing:
       clef: treble
     - channels: [1]
       clef: bass
-  staff_args:
-    repeat: False
 route_01:
   title: Route 1 Theme
   grouping:
@@ -22,35 +20,46 @@ route_01:
   processing:
     0:
       - [transpose_score_octave, { offset: -1 }]
+    1:
+      - [transpose_score_octave, { offset: 1 }]
     2:
+      - [transpose_score_octave, { offset: 1 }]
       - [remove_note, { index: -1 }]
       - [split_notes, { index: [-7, -6, -3, -2] }] # creates channel 3
-route_03:
+  tempo: 100
+route_03: # needs work, remove deep notes from channel 0
   title: Route 3 Theme
   grouping:
-    - channels: [0, 1]
+    - channels: [1, 0]
       clef: treble
       part_combine: True
-    - channels: [2]
+    - channels: [4]
       clef: bass
   staff_args:
     repeat: True
   processing:
     0:
       - combine_rests
-      - [transpose_score_octave, { offset: 2 }]
+      - [transpose_score_octave, { offset: 1 }]
+      - [split_notes, { index: [13, 14, 29, 30, -9] }] # creates channel 3
     1:
       - combine_rests
       - [transpose_score_octave, { offset: 1 }]
     2:
       - [eat_rests, { max_dur: 1.0 }]
       - [transpose_score_octave, { offset: -1 }]
+  chords: # creates channel 4
+    channels: [2, 3]
+    type: part_combine
+    kwargs:
+      errors: raise
+  tempo: 120
 route_12:
   title: Route 12 Theme
   grouping:
     - channels: [1]
       clef: treble
-    - channels: [0]
+    - channels: [3]
       clef: bass
   staff_args:
     repeat: True
@@ -58,6 +67,15 @@ route_12:
     1:
       - combine_irregular_notes
       - [transpose_score_octave, { offset: 1 }]
+    2:
+      - [eat_rests, { max_dur: 3.0 }]
+      - [transpose_score_octave, { offset: -1 }]
+      - [remove_note, { index: ["-11>-9", "-32>-17"] }]
+      - combine_rests
+  chords: # creates channel 3
+    channels: [2, 0]
+    type: align_shortest
+  tempo: 120
 route_25:
   title: Route 25 Theme
   grouping:
@@ -79,7 +97,9 @@ indigo_plateau:
       clef: bass
   staff_args:
     repeat: True
-  chords: [0, 1] # creates channel 3
+  chords: # creates channel 3
+    channels: [0, 1]
+    type: make_chords
 pallet_town:
   title: Pallet Town
   grouping:
@@ -92,19 +112,33 @@ pallet_town:
   processing:
     0:
       - [transpose_score_octave, { offset: -1 }]
+  tempo: 100
 viridian_city:
   title: Viridian City
   grouping:
-    - channels: [1, 0]
+    # - channels: [1, 0]
+    #   clef: treble
+    #   part_combine: True
+    # - channels: [2]
+    #   clef: treble
+    - channels: [1]
       clef: treble
-      part_combine: True
-    - channels: [2]
+    - channels: [3]
       clef: treble
   processing:
     0:
       - [transpose_score_octave, { offset: 1 }]
     1:
       - [transpose_score_below, { t_note: "c", t_octave: 4 }]
+      - [transpose_score_octave, { offset: 1 }]
+  chords: # creates channel 3
+    channels: [2, 0]
+    type: align_shortest
+    kwargs:
+      allow_seconds: False
+  staff_args:
+    repeat: True
+  tempo: 120
 following_person:
   title: Following Person
 prof_oak:

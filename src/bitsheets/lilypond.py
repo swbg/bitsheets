@@ -133,7 +133,7 @@ def parse_grouping(sheets_config: Dict) -> GroupingType:
 
 
 def _get_lilypond_header(**kwargs) -> str:
-    header_args = {"tagline": "www.lilypond.org"}
+    header_args = {"tagline": "Bits and Pieces"}
     header_args.update(kwargs)
 
     out = "\\header {\n"
@@ -245,7 +245,7 @@ def _get_lilypond_staff(
         nonlocal tuplet_cnt
         nonlocal tuplet_len
 
-        octave = note.with_octave_offset(octave_offset).octave
+        note = note.with_octave_offset(octave_offset)
 
         div = 0  # current duration of note written
         rem = note.dur  # remaning duration of note
@@ -271,13 +271,15 @@ def _get_lilypond_staff(
                 if total_dur % bar_length == 0:
                     # Across bars
                     notes.append(
-                        LilyPondNote(note.note, octave, dur=beats_per_whole / div)
+                        LilyPondNote(note.note, note.octave, dur=beats_per_whole / div)
                     )
                 else:
                     notes[-1].make_untied()
                     notes[-1].add_dot()
             else:
-                notes.append(LilyPondNote(note.note, octave, dur=beats_per_whole / div))
+                notes.append(
+                    LilyPondNote(note.note, note.octave, dur=beats_per_whole / div)
+                )
 
             # Add tie
             if rem > 0 and note.note != "r":
@@ -327,7 +329,7 @@ def _get_lilypond_staff(
 
 
 def _get_lilypond_grouping(
-    grouping: GroupingType, key: Tuple[str, str], midi: bool
+    grouping: GroupingType, key: Tuple[str, str], midi: bool, tempo: int
 ) -> str:
     """
     Get lilypond staff grouping.
@@ -335,6 +337,7 @@ def _get_lilypond_grouping(
     :param grouping: List of list with voices per staff
     :param key: Key as (tonic, mode)
     :param midi: Whether to request midi output
+    :param tempo: Tempo (only used for midi)
     """
     abc = string.ascii_uppercase
     out = "\\score {\n \\new GrandStaff <<"
@@ -356,18 +359,17 @@ def _get_lilypond_grouping(
             )
     out += "\n >>"
     if midi:
-        out += "\n \\midi {}"
+        out += f"\n \\midi {{\\tempo 4 = {tempo:d}}}"
     return out + "\n}"
 
 
 def dump_scores_lilypond(
     scores: ScoresType,
     pth: str,
-    grouping: list,
+    sheets_config: Dict[str, Any],
     octave_offset: int = -3,
     midi: bool = False,
     header_args: Dict[str, Any] = None,
-    staff_args: Dict[str, Any] = None,
     paper_args: Dict[str, Any] = None,
 ) -> None:
     """
@@ -375,12 +377,13 @@ def dump_scores_lilypond(
 
     :param scores: Scores to dump
     :param pth: Output path
+    :param sheets_config: Sheet music config
     :param header_elems: Info to add to lilypond header
-    :param grouping: Staff grouping
     :param midi: Whether to request midi output
-    :param staff_args: Staff arguments
     """
+    grouping = parse_grouping(sheets_config)
     key = get_most_likely_key(scores)
+    tempo = sheets_config.get("tempo", 80)
 
     with open(pth, "w") as f:
         f.write('\\version "2.22.2"')
@@ -391,7 +394,11 @@ def dump_scores_lilypond(
         channels = [voice for staff in grouping for voice in staff.channels]
         for i, score in enumerate(scores):
             if i in channels:  # skip voices that are not in grouping
-                staff = _get_lilypond_staff(score, octave_offset, **(staff_args or {}))
+                staff = _get_lilypond_staff(
+                    score, octave_offset, **(sheets_config.get("staff_args", {}))
+                )
                 f.write(f"\nchannel{abc[i]} = {staff}")
 
-        f.write("\n" + _get_lilypond_grouping(grouping, key=key, midi=midi))
+        f.write(
+            "\n" + _get_lilypond_grouping(grouping, key=key, midi=midi, tempo=tempo)
+        )

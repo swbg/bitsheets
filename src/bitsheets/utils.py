@@ -1,6 +1,7 @@
 import logging
+import math
 import sys
-from typing import Any
+from typing import Any, List, Optional
 
 
 class SimpleFilter(logging.Filter):
@@ -72,3 +73,39 @@ def is_close_to_round(val: Any, ndigits: int = 0, eps: float = 1e-5) -> bool:
     :param eps: Tolerance
     """
     return abs(val - round(val, ndigits)) < eps
+
+
+def round_if_close(val: Any, ndigits: int = 0, eps: float = 1e-5) -> Any:
+    """
+    Return rounded value if rounding keeps value within tolerance.
+
+    :param val: Value to round
+    :param ndigits: Number of digits to round to
+    :param eps: Tolerance
+    """
+    if is_close_to_round(val, ndigits, eps):
+        return round(val, ndigits)
+    return val
+
+
+def align_duration(dur: Optional[float], tuplets: List[int] = [3, 5]):
+    """
+    Align durations to grid.
+
+    We keep durations as float so this is a little hacky.
+
+    :param dur: The duration to align
+    :param tuplets: Tuplets to check
+    """
+    if dur is None:
+        return None
+
+    if is_close_to_round(dur, ndigits=1):
+        return round(dur, 1)
+
+    for tuplet_base in tuplets:
+        for i in range(1, tuplet_base):
+            if math.isclose(dur % 1, i / tuplet_base):
+                return dur // 1 + i / tuplet_base
+
+    raise ValueError("Could not align duration to grid")

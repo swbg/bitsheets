@@ -1,7 +1,8 @@
 from functools import total_ordering
-from typing import List, NamedTuple, Optional, Union
+from typing import List, NamedTuple, Optional, Tuple, Union
 
 from .const import NOTES
+from .utils import align_duration
 
 IntFloat = Union[int, float]
 
@@ -21,11 +22,28 @@ class Note:
         :param octave: Octave
         :param dur: Note duration
         """
-        assert note in NOTES + ["r"]
+        if isinstance(note, str):
+            assert note in NOTES + ["r"]
+            assert (note != "r") != (octave is None)
+        else:
+            for note_i in note:
+                assert note_i in NOTES + ["r"]
+
+            # Remove rests
+            no = [(n, o) for n, o in zip(note, octave) if n != "r"]
+
+            if len(no) == 0:
+                note = "r"
+                octave = None
+            else:
+                # Remove duplicate notes
+                no = list(set(no))
+                note = [n for n, _ in no]
+                octave = [o for _, o in no]
 
         self.note = note
         self.octave = octave
-        self.dur = dur
+        self.dur = align_duration(dur)
 
     def _as_dict(self):
         return {"note": self.note, "octave": self.octave, "dur": self.dur}
@@ -36,13 +54,28 @@ class Note:
 
         :param offset: Semitone offset
         """
-        new_note_idx = NOTES.index(self.note) + offset
+        if isinstance(self.note, str):
+            new_note_idx = NOTES.index(self.note) + offset
+            new_note = NOTES[new_note_idx % 12]
+        elif isinstance(self.note, list):
+            new_note_idx = [NOTES.index(note) + offset for note in self.note]
+            new_note = [NOTES[idx % 12] for idx in new_note_idx]
+        else:
+            raise ValueError("Error occured while processing note")
+
         octave_offset = new_note_idx // 12
+        if isinstance(self.octave, int):
+            new_octave = self.octave + octave_offset
+        elif isinstance(self.octave, list):
+            new_octave = [octave + octave_offset for octave in self.octave]
+        else:
+            raise ValueError("Error occured while processing note")
+
         return type(self)(
             **{
                 **self._as_dict(),
-                "note": NOTES[new_note_idx % 12],
-                "octave": self.octave + octave_offset,
+                "note": new_note,
+                "octave": new_octave,
             }
         )
 
@@ -60,22 +93,7 @@ class Note:
             octave = [o + offset for o in self.octave]
         else:
             raise ValueError("Type of octave must be int or List[int]")
-
         return type(self)(**{**self._as_dict(), "octave": octave})
-
-    def from_notes(self, *notes: List["Note"]) -> "Note":
-        """
-        Return copy of self with new note.
-
-        :param notes: Parser notes to combine
-        """
-        return type(self)(
-            **{
-                **self._as_dict(),
-                "note": [n.note for n in notes],
-                "octave": [n.octave for n in notes],
-            }
-        )
 
     def from_dur(self, dur: IntFloat) -> "Note":
         """
@@ -84,6 +102,24 @@ class Note:
         :param dur: New duration
         """
         return type(self)(**{**self._as_dict(), "dur": dur})
+
+    @staticmethod
+    def from_notes(*notes: List["Note"], dur: Optional[IntFloat] = None) -> "Note":
+        """
+        Return new note combined from List of notes.
+
+        :param notes: Notes to combine
+        """
+        if dur is None:
+            dur = notes[0].dur
+            for n in notes:
+                assert n.dur == dur
+
+        return Note(
+            note=[n.note for n in notes],
+            octave=[n.octave for n in notes],
+            dur=dur,
+        )
 
     def __iter__(self):
         return iter((self.note, self.octave, self.dur))
@@ -142,9 +178,9 @@ class Score:
     def __len__(self):
         return self.notes.__len__()
 
-    def idx_at_dur(self, dur: IntFloat) -> int:
+    def idx_at_dur(self, dur: IntFloat) -> Tuple[int, float]:
         """
-        Return index of note playing at spcified duration.
+        Return index and cumulative duration of note playing at specified duration.
 
         :param dur: Duration from beginning of score
         """
@@ -153,22 +189,28 @@ class Score:
         while current_dur < dur:
             if current_idx == len(self.notes):
                 break
-            current_dur += self.notes[current_idx].dur
+            current_dur = align_duration(current_dur + self.notes[current_idx].dur)
             current_idx += 1
         else:
-            return current_idx
-        return None
+            return current_idx, current_dur
+        return None, None
 
     def note_at_dur(self, dur: IntFloat) -> Note:
         """
-        Return note playing at spcified duration.
+        Return note playing at specified duration.
 
         :param dur: Duration from beginning of score
         """
-        idx = self.idx_at_dur(dur)
+        idx, _ = self.idx_at_dur(dur)
         if idx is None:
             return None
         return self.notes[idx]
+
+    def get_total_dur(self) -> float:
+        """
+        Return total duration of score.
+        """
+        return align_duration(sum(s.dur for s in self))
 
     def __repr__(self):
         return (
