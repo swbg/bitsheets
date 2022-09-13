@@ -71,7 +71,7 @@ following_person:
     - 0x6e6e
     # 0x6ED1, # percussion
   ptr_offset: 0x4000
-prof_oak:
+meet_prof_oak:
   title: Prof. Oak Encounter
   channels:
     - 0x6f59

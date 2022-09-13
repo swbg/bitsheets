@@ -153,7 +153,7 @@ viridian_city:
   tempo: 120
 following_person:
   title: Following Person
-prof_oak:
+meet_prof_oak:
   title: Prof. Oak Encounter
   grouping:
     - channels: [1]
@@ -176,24 +176,143 @@ prof_oak:
   tempo: 140
 meet_rival_trainer:
   title: Rival Trainer Encounter
+  grouping:
+    - channels: [3]
+      clef: treble
+    - channels: [2]
+      clef: bass
+  staff_args:
+    repeat: True
+    bars:
+      2: '\bar ".|:"'
+  processing:
+    0:
+      - [eat_rests, { max_dur: 4.0 }]
+      - [transpose_score_octave, { offset: 1 }]
+      - [remove_note, { index: ["-26>-23"] }]
+    1:
+      - [eat_rests, { max_dur: 4.0 }]
+      - [transpose_score_octave, { offset: 1 }]
+    2:
+      - [eat_rests, { max_dur: 4.0 }]
+      - [transpose_score_octave, { offset: -1 }]
+  chords: # creates channel 3
+    channels: [1, 0]
+    type: align_shortest
+  tempo: 120
 ss_anne:
   title: S.S. Anne
+  grouping:
+    - channels: [1]
+      clef: treble
+    - channels: [3]
+      clef: bass
+  staff_args:
+    repeat: True
+  processing:
+    0:
+      - [transpose_note_octave, { offset: 1, index: -9 }]
+    1:
+      - [transpose_score_octave, { offset: 1 }]
+    2:
+      - [transpose_score_octave, { offset: -1 }]
+  chords: # creates channel 3
+    channels: [0, 2]
+    type: align_shortest
+  tempo: 120
 cerulean_city:
   title: Cerulean City
+  grouping:
+    - channels: [1]
+      clef: treble
+    - channels: [3]
+      clef: bass
+  staff_args:
+    repeat: True
+  processing:
+    1:
+      - [transpose_score_octave, { offset: 1 }]
+      - [transpose_note, { offset: 8, index: "45>49" }]
+    2:
+      - [transpose_score_octave, { offset: -1 }]
+  chords: # creates channel 3
+    channels: [0, 2]
+    type: align_shortest
+  tempo: 120
 celadon_city:
   title: Celadon City
+  grouping:
+    - channels: [0]
+      clef: treble
+    - channels: [1]
+      clef: treble
+    - channels: [2]
+      clef: treble
+  staff_args:
+    repeat: True
+  tempo: 120
 cinnabar_island:
   title: Cinnabar Island
+  grouping:
+    - channels: [0]
+      clef: treble
+    - channels: [1]
+      clef: treble
+    - channels: [2]
+      clef: treble
+  staff_args:
+    repeat: True
+  tempo: 120
 vermilion_city:
   title: Vermilion City
+  grouping:
+    - channels: [0]
+      clef: treble
+    - channels: [1]
+      clef: treble
+    - channels: [2]
+      clef: treble
+  staff_args:
+    repeat: True
+  tempo: 120
 lavender_town:
   title: Lavender Town
 safari_zone:
   title: Safari Zone
+  grouping:
+    - channels: [0]
+      clef: treble
+    - channels: [1]
+      clef: treble
+    - channels: [2]
+      clef: treble
+  staff_args:
+    repeat: True
+  tempo: 120
 gyms:
   title: Gym Theme
+  grouping:
+    - channels: [0]
+      clef: treble
+    - channels: [1]
+      clef: treble
+    - channels: [2]
+      clef: treble
+  staff_args:
+    repeat: True
+  tempo: 120
 pokemon_center:
   title: Pokémon Center
+  grouping:
+    - channels: [0]
+      clef: treble
+    - channels: [1]
+      clef: treble
+    - channels: [2]
+      clef: treble
+  staff_args:
+    repeat: True
+  tempo: 120
 # Bank 8
 gym_leader_battle:
   title: Gym Leader Battle

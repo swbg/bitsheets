@@ -84,6 +84,26 @@ def transpose_note_octave(
     )
 
 
+def transpose_note(
+    score: Score, offset: int, index: Union[int, str, List[Union[int, str]]]
+) -> Score:
+    """
+    Transpose note(s) at index/indices in a score by the specified semitone offset.
+
+    :param score: Score to transpose
+    :param offset: Semitone offset
+    :param index: Note index/indices
+    """
+    index = parse_index(index, len(score))
+
+    return Score(
+        [
+            note.with_semitone_offset(offset) if i in index else copy(note)
+            for i, note in enumerate(score)
+        ]
+    )
+
+
 def remove_note(score: Score, index: Union[int, str, List[Union[int, str]]]) -> Score:
     """
     Remove note(s) at index/indices.
@@ -291,7 +311,7 @@ def align_shortest(scorea: Score, scoreb: Score, **kwargs) -> Score:
     :param scorea: First score
     :param scoreb: Second score
     """
-    strike_durs = set()
+    strike_durs = set([0])
     for score in [scorea, scoreb]:
         current_dur = 0
         for note in score:
