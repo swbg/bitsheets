@@ -1,7 +1,7 @@
 import logging
 import math
 import sys
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 
 class SimpleFilter(logging.Filter):
@@ -109,3 +109,28 @@ def align_duration(dur: Optional[float], tuplets: List[int] = [3, 5]):
                 return dur // 1 + i / tuplet_base
 
     raise ValueError("Could not align duration to grid")
+
+
+def parse_index(index: Union[int, str, List[Union[int, str]]], max_len: int):
+    """
+    Parse collection of integer/string index.
+
+    :param index: Index to parse
+    :param max_len: Length of score (for negative indices)
+    """
+    if isinstance(index, int) or isinstance(index, str):
+        index = [index]
+
+    def try_parse_str(s: Union[int, str]):
+        if isinstance(s, int):
+            return [s]
+        fr, to = s.split(">")
+        fr, to = int(fr or 0), int(to or max_len)
+        return range(fr, to + 1)
+
+    index = [xi for s in index for xi in try_parse_str(s)]
+
+    # Support negative indices
+    index = [i if i >= 0 else i + max_len for i in index]
+
+    return index

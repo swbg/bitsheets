@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Union
 
 from .const import NOTES
 from .types import Note, Score, ScoresType
-from .utils import align_duration, is_close_to_round, round_if_close
+from .utils import align_duration, is_close_to_round, parse_index, round_if_close
 
 _logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ def transpose_score_octave(score: Score, offset: int) -> Score:
 
 
 def transpose_note_octave(
-    score: Score, offset: int, index: Union[int, List[int]]
+    score: Score, offset: int, index: Union[int, str, List[Union[int, str]]]
 ) -> Score:
     """
     Transpose note(s) at index/indices in a score by the specified octave offset.
@@ -74,11 +74,7 @@ def transpose_note_octave(
     :param offset: Octave offset
     :param index: Note index/indices
     """
-    if isinstance(index, int):
-        index = [index]
-
-    # Support negative indices
-    index = [i if i >= 0 else i + len(score) for i in index]
+    index = parse_index(index, len(score))
 
     return Score(
         [
@@ -95,20 +91,7 @@ def remove_note(score: Score, index: Union[int, str, List[Union[int, str]]]) -> 
     :param score: Score to process
     :param index: Note index/indices
     """
-    if isinstance(index, int) or isinstance(index, str):
-        index = [index]
-
-    def try_parse_str(s: Union[int, str]):
-        if isinstance(s, int):
-            return [s]
-        fr, to = s.split(">")
-        fr, to = int(fr), int(to)
-        return range(fr, to + 1)
-
-    index = [xi for s in index for xi in try_parse_str(s)]
-
-    # Support negative indices
-    index = [i if i >= 0 else i + len(score) for i in index]
+    index = parse_index(index, len(score))
 
     return Score(
         [
@@ -229,18 +212,16 @@ def transpose_score_below(score: Score, t_note: str, t_octave: int):
     return new_score
 
 
-def split_notes(score: Score, index: Union[int, List[int]]) -> Tuple[Score, Score]:
+def split_notes(
+    score: Score, index: Union[int, str, List[Union[int, str]]]
+) -> Tuple[Score, Score]:
     """
     Remove note(s) at index/indices from score and add to new score.
 
     :param score: Score to process
     :param index: Index/indices to remove
     """
-    if isinstance(index, int):
-        index = [index]
-
-    # Support negative indices
-    index = [i if i >= 0 else i + len(score) for i in index]
+    index = parse_index(index, len(score))
 
     scorea = Score(
         [

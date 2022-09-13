@@ -81,13 +81,25 @@ route_25:
   grouping:
     - channels: [1]
       clef: treble
-    - channels: [0]
+    - channels: [4, 3]
       clef: bass
+      part_combine: True
   staff_args:
     repeat: True
   processing:
     1:
       - [transpose_note_octave, { offset: 1, index: 8 }]
+    2:
+      - [eat_rests, { max_dur: 2.0 }]
+      - [
+          transpose_note_octave,
+          { offset: 1, index: [-4, -5, -6, -8, -9, -11, -19, -21, -23, -25] },
+        ]
+      - [split_notes, { index: ["24>"] }] # creates channel 3
+  chords: # creates channel 4
+    channels: [2, 0]
+    type: align_shortest
+  tempo: 110
 indigo_plateau:
   title: Indigo Plateau
   grouping:
@@ -100,6 +112,11 @@ indigo_plateau:
   chords: # creates channel 3
     channels: [0, 1]
     type: make_chords
+  processing:
+    2:
+      - [eat_rests, { max_dur: 8.0 }]
+  key: [c, major]
+  tempo: 120
 pallet_town:
   title: Pallet Town
   grouping:
@@ -116,11 +133,6 @@ pallet_town:
 viridian_city:
   title: Viridian City
   grouping:
-    # - channels: [1, 0]
-    #   clef: treble
-    #   part_combine: True
-    # - channels: [2]
-    #   clef: treble
     - channels: [1]
       clef: treble
     - channels: [3]
@@ -143,6 +155,25 @@ following_person:
   title: Following Person
 prof_oak:
   title: Prof. Oak Encounter
+  grouping:
+    - channels: [1]
+      clef: treble
+    - channels: [3]
+      clef: bass
+  staff_args:
+    repeat: True
+    bars:
+      9: '\bar ".|:"'
+  processing:
+    1:
+      - [transpose_score_octave, { offset: 1 }]
+    2:
+      - [eat_rests, { max_dur: 1.0 }]
+      - [transpose_score_octave, { offset: -1 }]
+  chords: # creates channel 3
+    channels: [0, 2]
+    type: align_shortest
+  tempo: 140
 meet_rival_trainer:
   title: Rival Trainer Encounter
 ss_anne:

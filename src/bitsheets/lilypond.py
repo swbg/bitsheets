@@ -1,10 +1,10 @@
 import logging
 import string
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from .theory import get_most_likely_key
 from .types import GroupingElement, GroupingType, IntFloat, Note, Score, ScoresType
-from .utils import is_close_to_round
+from .utils import align_duration, is_close_to_round
 
 _logger = logging.getLogger(__name__)
 
@@ -83,11 +83,13 @@ class LilyPondNote(LilyPondElement):
 
 
 class LilyPondBar(LilyPondElement):
-    def __init__(self):
+    def __init__(self, bar: str = None):
         """
         Class representing lilypond bar.
+
+        :param bar: Bar command
         """
-        self.bar = "|"
+        self.bar = bar or "|"
 
     def make_end(self, repeat: bool = False) -> None:
         """
@@ -208,6 +210,7 @@ def _get_lilypond_staff(
     anacrusis: int = 0,
     fill_end: bool = True,
     time_base: int = 4,
+    bars: Optional[Dict[IntFloat, str]] = None,
 ) -> str:
     """
     Convert score to lilypond format.
@@ -220,6 +223,7 @@ def _get_lilypond_staff(
     :param anacrusis: Anacrusis/pickup in beats
     :param fill_end: Whether to fill the end with rests up to the next full bar
     :param time_base: Base duration for time signature
+    :param bars: Additional bars (e.g., repeats) to add
     """
     notes = []
     total_dur = 0
@@ -228,6 +232,9 @@ def _get_lilypond_staff(
     notes.append(
         LilyPondCommand(f"\\time {time_base * time_multiplier:.0f}/{time_base}\n")
     )
+
+    if bars is None:
+        bars = {}
 
     if anacrusis > 0:
         assert anacrusis < bar_length
@@ -289,7 +296,10 @@ def _get_lilypond_staff(
                 # Correct before adding to total_dur
                 div *= (tuplet_len - 1) / tuplet_len
 
-            total_dur += div
+            total_dur = align_duration(total_dur + div)
+
+            if total_dur / bar_length in bars:
+                notes.append(LilyPondBar(bars[total_dur / bar_length]))
 
             if tuplet_cnt == 0:
                 # Close tuplet
@@ -299,7 +309,7 @@ def _get_lilypond_staff(
                 tuplet_len = None
                 notes.append(LilyPondCommand("}"))
 
-            if total_dur % bar_length == 0:
+            if total_dur % bar_length == 0 and not isinstance(notes[-1], LilyPondBar):
                 notes.append(LilyPondBar())
 
     for note in score:
@@ -378,12 +388,13 @@ def dump_scores_lilypond(
     :param scores: Scores to dump
     :param pth: Output path
     :param sheets_config: Sheet music config
-    :param header_elems: Info to add to lilypond header
     :param midi: Whether to request midi output
+    :param header_args: Arguments for lilypond header
+    :param paper_args: Arguments for lilypond paper
     """
     grouping = parse_grouping(sheets_config)
-    key = get_most_likely_key(scores)
     tempo = sheets_config.get("tempo", 80)
+    key = sheets_config.get("key", get_most_likely_key(scores))
 
     with open(pth, "w") as f:
         f.write('\\version "2.22.2"')
@@ -395,7 +406,7 @@ def dump_scores_lilypond(
         for i, score in enumerate(scores):
             if i in channels:  # skip voices that are not in grouping
                 staff = _get_lilypond_staff(
-                    score, octave_offset, **(sheets_config.get("staff_args", {}))
+                    score, octave_offset, **sheets_config.get("staff_args", {})
                 )
                 f.write(f"\nchannel{abc[i]} = {staff}")
 
